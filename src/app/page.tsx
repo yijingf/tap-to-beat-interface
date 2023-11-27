@@ -1,17 +1,99 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-type KeyPressedState = {
-  [key: string]: boolean;
-};
+const fileNames = [
+  "03.wav",
+  "04.wav",
+  "05.wav",
+  "06.wav",
+  "07.wav",
+  "08.wav",
+  "10.wav",
+  "11.wav",
+  "12.wav",
+  "16.wav",
+  "20.wav",
+];
+
+const randomizedFileNames = fileNames.sort(() => Math.random() - 0.5);
+
+const shuffleMTandMASS = () =>
+  Math.random() > 0.5 ? ["MT", "MASS"] : ["MASS", "MT"];
+
+const phrases = randomizedFileNames.map((filename) => {
+  const [first, second] = shuffleMTandMASS(); // Get a randomized order for 'MT' and 'MASS'
+  return [
+    `phrases/Reference/${filename}`,
+    `phrases/Anchor/${filename}`,
+    `phrases/${first}/${filename}`,
+    `phrases/${second}/${filename}`,
+  ];
+});
+
+console.log(phrases);
 
 export default function Home() {
   const [isTraining, setIsTraining] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [keyPresses, setKeyPresses] = useState<number[]>([]);
-  const [keyPressed, setKeyPressed] = useState<KeyPressedState>({});
   const [startTime, setStartTime] = useState<number | null>(null);
+
+  const [audioPlaying, setAudioPlaying] = useState(false);
+  const [audioSrc, setAudioSrc] = useState<string>(phrases[0][0]);
+
+  const [currentPhaseIndex, setCurrentPhaseIndex] = useState(0);
+  const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
+  const [currentActionIndex, setCurrentActionIndex] = useState(0);
+
+  // Define the order of phases and phrases
+  const actions = ["PromptCountdown", "Phrase", "Silence"];
+  const phases = ["Reference", "Anchor", "MASS", "MT"];
+
+  const audioRef = useRef<HTMLAudioElement>(null);
+
+  useEffect(() => {
+    // This effect will play/pause the audio based on the audioPlaying state
+    if (audioPlaying && audioRef.current) {
+      audioRef.current.play();
+    } else if (!audioPlaying && audioRef.current) {
+      audioRef.current.pause();
+    }
+  }, [audioPlaying]);
+
+  // Function to advance to the next phase or phrase
+  const advancePhase = () => {
+    const nextActionIndex = currentActionIndex + 1;
+    const nextPhaseIndex =
+      nextActionIndex >= actions.length
+        ? currentPhaseIndex + 1
+        : currentPhaseIndex;
+    const nextPhraseIndex =
+      nextPhaseIndex >= phases.length
+        ? currentPhraseIndex + 1
+        : currentPhraseIndex;
+
+    if (nextActionIndex >= actions.length) {
+      setCurrentActionIndex(0);
+    } else {
+      setCurrentActionIndex(nextActionIndex);
+    }
+
+    if (nextPhaseIndex >= phases.length) {
+      setCurrentPhaseIndex(0);
+    } else {
+      setCurrentPhaseIndex(nextPhaseIndex);
+    }
+
+    if (nextPhraseIndex >= phrases.length) {
+      setCurrentPhraseIndex(0);
+    } else {
+      setCurrentPhraseIndex(nextPhraseIndex);
+    }
+
+    // Set the audio source for the new phase
+    setAudioSrc(phrases[currentPhraseIndex][currentPhaseIndex]);
+  };
 
   useEffect(() => {
     const recordKeyPress = (event: KeyboardEvent) => {
@@ -35,12 +117,15 @@ export default function Home() {
 
   const toggleRecording = () => {
     if (isRecording) {
+      // Stop recording
       console.log("Key press times:", keyPresses);
       setKeyPresses([]);
-      setKeyPressed({});
-      setStartTime(null); // Reset the startTime for the next recording session
+      setStartTime(null);
+      setAudioPlaying(false); // Stop audio playback
     } else {
-      setStartTime(performance.now()); // Set the startTime when recording starts
+      // Start recording
+      setStartTime(performance.now());
+      setAudioPlaying(true); // Start audio playback
     }
     setIsRecording(!isRecording);
   };
@@ -48,22 +133,6 @@ export default function Home() {
   const startTraining = () => {
     setIsTraining(true);
   };
-
-  if (!isTraining) {
-    return (
-      <div className="flex flex-col justify-center items-center h-screen bg-gray-100">
-        <h1 className="text-4xl font-bold text-gray-800 mb-8">
-          Welcome to the KeyPress Training App
-        </h1>
-        <button
-          onClick={startTraining}
-          className="bg-gray-700 text-white font-bold py-2 px-6 rounded transition duration-300 ease-in-out hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50"
-        >
-          Start Training
-        </button>
-      </div>
-    );
-  }
 
   return (
     <div className="flex justify-center items-center h-screen bg-gray-100">
@@ -82,25 +151,40 @@ export default function Home() {
       ) : (
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-800 mb-6">
-            KeyPress Recording App
+            {phrases[currentPhraseIndex][currentPhaseIndex]} <br />
+            {actions[currentActionIndex]}
           </h1>
+
           <button
-            onClick={toggleRecording}
-            className={`${
-              isRecording
-                ? "bg-red-600 hover:bg-red-500"
-                : "bg-green-600 hover:bg-green-500"
-            } text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors`}
+            onClick={advancePhase}
+            className="bg-gray-500 hover:bg-gray-400 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors"
           >
-            {isRecording ? "Stop Recording" : "Start Recording"}
+            Next Phase
           </button>
-          <ul className="list-disc text-gray-700 mt-4 inline-block text-left">
-            {keyPresses.map((time, index) => (
-              <li key={index} className="mt-2">
-                Key pressed at {time.toFixed(3)} ms
-              </li>
-            ))}
-          </ul>
+
+          <audio ref={audioRef} src={audioSrc} preload="auto" />
+
+          {actions[currentActionIndex] === "Phrase" && (
+            <>
+              <button
+                onClick={toggleRecording}
+                className={`${
+                  isRecording
+                    ? "bg-red-600 hover:bg-red-500"
+                    : "bg-green-600 hover:bg-green-500"
+                } text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors`}
+              >
+                {isRecording ? "Stop Recording" : "Start Recording"}
+              </button>
+              <ul className="list-disc text-gray-700 mt-4 inline-block text-left">
+                {keyPresses.map((time, index) => (
+                  <li key={index} className="mt-2">
+                    Key pressed at {time.toFixed(3)} ms
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
         </div>
       )}
     </div>
