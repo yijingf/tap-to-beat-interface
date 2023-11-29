@@ -44,7 +44,7 @@ export default function Home() {
 
   const [currentPhaseIndex, setCurrentPhaseIndex] = useState(0);
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
-  const [currentActionIndex, setCurrentActionIndex] = useState(0);
+  const [currentActionIndex, setCurrentActionIndex] = useState(-1);
   const [countdown, setCountdown] = useState(5);
 
   // Define the order of phases and phrases
@@ -88,7 +88,25 @@ export default function Home() {
   };
 
   useEffect(() => {
+    // This effect will play/pause the audio based on the audioPlaying state
+    if (audioPlaying && audioRef.current) {
+      audioRef.current.play();
+    } else if (!audioPlaying && audioRef.current) {
+      audioRef.current.pause();
+    }
+  }, [audioPlaying]);
+
+  useEffect(() => {
     let countdownInterval: NodeJS.Timeout | null = null;
+
+    console.log(currentActionIndex);
+    if (
+      actions[currentActionIndex] !== "PromptCountdown" &&
+      actions[currentActionIndex] !== "Silence"
+    ) {
+      console.log("aaa", actions[currentActionIndex]);
+      return;
+    }
 
     const timeToWait = actions[currentActionIndex] === "Silence" ? 3 : 5;
 
@@ -110,15 +128,6 @@ export default function Home() {
       }
     };
   }, [currentActionIndex]);
-
-  useEffect(() => {
-    // This effect will play/pause the audio based on the audioPlaying state
-    if (audioPlaying && audioRef.current) {
-      audioRef.current.play();
-    } else if (!audioPlaying && audioRef.current) {
-      audioRef.current.pause();
-    }
-  }, [audioPlaying]);
 
   useEffect(() => {
     // When the audio ends, move to the silence phase
@@ -179,6 +188,7 @@ export default function Home() {
 
   const startTraining = () => {
     setIsTraining(true);
+    advancePhase();
   };
 
   return (
