@@ -45,21 +45,13 @@ export default function Home() {
   const [currentPhaseIndex, setCurrentPhaseIndex] = useState(0);
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
   const [currentActionIndex, setCurrentActionIndex] = useState(0);
+  const [countdown, setCountdown] = useState(5);
 
   // Define the order of phases and phrases
   const actions = ["PromptCountdown", "Phrase", "Silence"];
   const phases = ["Reference", "Anchor", "MASS", "MT"];
 
   const audioRef = useRef<HTMLAudioElement>(null);
-
-  useEffect(() => {
-    // This effect will play/pause the audio based on the audioPlaying state
-    if (audioPlaying && audioRef.current) {
-      audioRef.current.play();
-    } else if (!audioPlaying && audioRef.current) {
-      audioRef.current.pause();
-    }
-  }, [audioPlaying]);
 
   // Function to advance to the next phase or phrase
   const advancePhase = () => {
@@ -94,6 +86,61 @@ export default function Home() {
     // Set the audio source for the new phase
     setAudioSrc(phrases[currentPhraseIndex][currentPhaseIndex]);
   };
+
+  useEffect(() => {
+    let countdownInterval: NodeJS.Timeout | null = null;
+
+    const timeToWait = actions[currentActionIndex] === "Silence" ? 3 : 5;
+
+    countdownInterval = setInterval(() => {
+      setCountdown((prevCountdown) => {
+        if (prevCountdown <= 1) {
+          // Move to the next phase
+          advancePhase();
+          return timeToWait;
+        } else {
+          return prevCountdown - 1;
+        }
+      });
+    }, 1000);
+
+    return () => {
+      if (countdownInterval) {
+        clearInterval(countdownInterval);
+      }
+    };
+  }, [currentActionIndex]);
+
+  useEffect(() => {
+    // This effect will play/pause the audio based on the audioPlaying state
+    if (audioPlaying && audioRef.current) {
+      audioRef.current.play();
+    } else if (!audioPlaying && audioRef.current) {
+      audioRef.current.pause();
+    }
+  }, [audioPlaying]);
+
+  useEffect(() => {
+    // When the audio ends, move to the silence phase
+    const handleAudioEnd = () => {
+      setAudioPlaying(false);
+      advancePhase();
+      setCountdown(3); // Reset silence duration
+      console.log("here");
+    };
+
+    if (audioRef.current) {
+      console.log("yo");
+
+      audioRef.current.addEventListener("ended", handleAudioEnd);
+    }
+
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.removeEventListener("ended", handleAudioEnd);
+      }
+    };
+  }, [audioRef, currentActionIndex]);
 
   useEffect(() => {
     const recordKeyPress = (event: KeyboardEvent) => {
@@ -155,16 +202,9 @@ export default function Home() {
             {actions[currentActionIndex]}
           </h1>
 
-          <button
-            onClick={advancePhase}
-            className="bg-gray-500 hover:bg-gray-400 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors"
-          >
-            Next Phase
-          </button>
-
           <audio ref={audioRef} src={audioSrc} preload="auto" />
 
-          {actions[currentActionIndex] === "Phrase" && (
+          {actions[currentActionIndex] === "Phrase" ? (
             <>
               <button
                 onClick={toggleRecording}
@@ -184,6 +224,10 @@ export default function Home() {
                 ))}
               </ul>
             </>
+          ) : (
+            <div className="text-3xl font-bold text-gray-800 mb-6">
+              Countdown: {countdown}
+            </div>
           )}
         </div>
       )}
