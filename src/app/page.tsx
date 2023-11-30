@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const fileNames = [
   "03.wav",
@@ -31,12 +31,11 @@ const phrases = randomizedFileNames.map((filename) => {
   ];
 });
 
-console.log(phrases);
-
 export default function Home() {
-  const [isTraining, setIsTraining] = useState(false);
+  const [stage, setStage] = useState<"start" | "training" | "end">("start");
   const [isRecording, setIsRecording] = useState(false);
-  const [keyPresses, setKeyPresses] = useState<number[]>([]);
+  const [keyPresses, setKeyPresses] = useState<Record<string, number[]>>({});
+
   const [startTime, setStartTime] = useState<number | null>(null);
 
   const [audioPlaying, setAudioPlaying] = useState(false);
@@ -78,7 +77,7 @@ export default function Home() {
     }
 
     if (nextPhraseIndex >= phrases.length) {
-      setCurrentPhraseIndex(0);
+      setStage("end");
     } else {
       setCurrentPhraseIndex(nextPhraseIndex);
     }
@@ -104,12 +103,13 @@ export default function Home() {
     }
 
     if (actions[currentActionIndex] === "Phrase") {
-      // toggleRecording();
+      setIsRecording(true);
       setStartTime(performance.now());
-      setAudioPlaying(true); // Start audio playback
-
+      setAudioPlaying(true);
       return;
     }
+
+    setIsRecording(false);
 
     const timeToWait = actions[currentActionIndex] === "Silence" ? 3 : 5;
 
@@ -134,9 +134,6 @@ export default function Home() {
   useEffect(() => {
     // When the audio ends, move to the silence phase
     const handleAudioEnd = () => {
-      console.log("audio ended");
-      //   toggleRecording();
-      setKeyPresses([]);
       setStartTime(null);
       setAudioPlaying(false); // Stop audio playback
 
@@ -160,8 +157,17 @@ export default function Home() {
       if (event.repeat || !isRecording) return;
 
       const currentTime = performance.now();
+
       const relativeTime = startTime ? currentTime - startTime : 0;
-      setKeyPresses((prevKeyPresses) => [...prevKeyPresses, relativeTime]);
+
+      setKeyPresses((prevDict) => {
+        const key = phrases[currentPhraseIndex][currentPhaseIndex];
+        const existingKeyPresses = prevDict[key] || [];
+        return {
+          ...prevDict,
+          [key]: [...existingKeyPresses, relativeTime],
+        };
+      });
     };
 
     if (isRecording) {
@@ -176,40 +182,79 @@ export default function Home() {
   }, [isRecording, startTime]);
 
   const startTraining = () => {
-    setIsTraining(true);
+    setStage("training");
     advancePhase();
   };
 
-  return (
-    <div className="flex justify-center items-center h-screen bg-gray-100">
-      {!isTraining ? (
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-800 mb-6">
-            Welcome to the KeyPress Training App
-          </h1>
-          <button
-            onClick={startTraining}
-            className="bg-gray-800 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline hover:bg-gray-700"
-          >
-            Start Training
-          </button>
-        </div>
-      ) : (
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-800 mb-6">
-            {phrases[currentPhraseIndex][currentPhaseIndex]} <br />
-            {actions[currentActionIndex]}
-          </h1>
+  const exportKeyPresses = () => {
+    const json = JSON.stringify(keyPresses);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "keyPresses.json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
 
-          <audio ref={audioRef} src={audioSrc} preload="auto" />
-
-          <div className="text-3xl font-bold text-gray-800 mb-6">
-            {actions[currentActionIndex] === "Phrase"
-              ? "Playing music"
-              : `Countdown: ${countdown}`}
+  switch (stage) {
+    case "start":
+      return (
+        <div className="flex justify-center items-center h-screen bg-gray-100">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-gray-800 mb-6">
+              Welcome to the Tapping Interface
+            </h1>
+            <button
+              onClick={startTraining}
+              className="bg-gray-800 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline hover:bg-gray-700"
+            >
+              Start Tapping
+            </button>
           </div>
         </div>
-      )}
-    </div>
-  );
+      );
+    case "training":
+      return (
+        <div className="flex justify-center items-center h-screen bg-gray-100">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-gray-800 mb-6">
+              {phrases[currentPhraseIndex][currentPhaseIndex]} <br />
+              {actions[currentActionIndex]}
+            </h1>
+
+            <audio ref={audioRef} src={audioSrc} preload="auto" />
+
+            <div className="text-3xl font-bold text-gray-800 mb-6">
+              {actions[currentActionIndex] === "Phrase"
+                ? "Playing music"
+                : `Countdown: ${countdown}`}
+            </div>
+          </div>
+        </div>
+      );
+    case "end":
+      return (
+        <div className="flex justify-center items-center h-screen bg-gray-100">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-gray-800 mb-6">
+              Thank you for participating!
+            </h1>
+            <button
+              onClick={exportKeyPresses}
+              className="bg-gray-800 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline hover:bg-gray-700"
+            >
+              Export Key Presses
+            </button>
+            <button
+              onClick={() => window.location.reload()}
+              className="bg-gray-800 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline hover:bg-gray-700 ml-4"
+            >
+              Start New Session
+            </button>
+          </div>
+        </div>
+      );
+  }
 }
