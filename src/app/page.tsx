@@ -99,12 +99,15 @@ export default function Home() {
   useEffect(() => {
     let countdownInterval: NodeJS.Timeout | null = null;
 
-    console.log(currentActionIndex);
-    if (
-      actions[currentActionIndex] !== "PromptCountdown" &&
-      actions[currentActionIndex] !== "Silence"
-    ) {
-      console.log("aaa", actions[currentActionIndex]);
+    if (!actions[currentActionIndex]) {
+      return;
+    }
+
+    if (actions[currentActionIndex] === "Phrase") {
+      // toggleRecording();
+      setStartTime(performance.now());
+      setAudioPlaying(true); // Start audio playback
+
       return;
     }
 
@@ -113,7 +116,6 @@ export default function Home() {
     countdownInterval = setInterval(() => {
       setCountdown((prevCountdown) => {
         if (prevCountdown <= 1) {
-          // Move to the next phase
           advancePhase();
           return timeToWait;
         } else {
@@ -132,15 +134,17 @@ export default function Home() {
   useEffect(() => {
     // When the audio ends, move to the silence phase
     const handleAudioEnd = () => {
-      setAudioPlaying(false);
+      console.log("audio ended");
+      //   toggleRecording();
+      setKeyPresses([]);
+      setStartTime(null);
+      setAudioPlaying(false); // Stop audio playback
+
       advancePhase();
       setCountdown(3); // Reset silence duration
-      console.log("here");
     };
 
     if (audioRef.current) {
-      console.log("yo");
-
       audioRef.current.addEventListener("ended", handleAudioEnd);
     }
 
@@ -169,22 +173,7 @@ export default function Home() {
     return () => {
       window.removeEventListener("keydown", recordKeyPress);
     };
-  }, [isRecording, startTime]); // Add startTime as a dependency
-
-  const toggleRecording = () => {
-    if (isRecording) {
-      // Stop recording
-      console.log("Key press times:", keyPresses);
-      setKeyPresses([]);
-      setStartTime(null);
-      setAudioPlaying(false); // Stop audio playback
-    } else {
-      // Start recording
-      setStartTime(performance.now());
-      setAudioPlaying(true); // Start audio playback
-    }
-    setIsRecording(!isRecording);
-  };
+  }, [isRecording, startTime]);
 
   const startTraining = () => {
     setIsTraining(true);
@@ -214,31 +203,11 @@ export default function Home() {
 
           <audio ref={audioRef} src={audioSrc} preload="auto" />
 
-          {actions[currentActionIndex] === "Phrase" ? (
-            <>
-              <button
-                onClick={toggleRecording}
-                className={`${
-                  isRecording
-                    ? "bg-red-600 hover:bg-red-500"
-                    : "bg-green-600 hover:bg-green-500"
-                } text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors`}
-              >
-                {isRecording ? "Stop Recording" : "Start Recording"}
-              </button>
-              <ul className="list-disc text-gray-700 mt-4 inline-block text-left">
-                {keyPresses.map((time, index) => (
-                  <li key={index} className="mt-2">
-                    Key pressed at {time.toFixed(3)} ms
-                  </li>
-                ))}
-              </ul>
-            </>
-          ) : (
-            <div className="text-3xl font-bold text-gray-800 mb-6">
-              Countdown: {countdown}
-            </div>
-          )}
+          <div className="text-3xl font-bold text-gray-800 mb-6">
+            {actions[currentActionIndex] === "Phrase"
+              ? "Playing music"
+              : `Countdown: ${countdown}`}
+          </div>
         </div>
       )}
     </div>
