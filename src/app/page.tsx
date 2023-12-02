@@ -217,19 +217,26 @@ export default function Home() {
       );
     case "training":
       return (
-        <div className="flex justify-center items-center h-screen bg-gray-100">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-800 mb-6">
-              {phrases[currentPhraseIndex][currentPhaseIndex]} <br />
-              {actions[currentActionIndex]}
-            </h1>
-
-            <audio ref={audioRef} src={audioSrc} preload="auto" />
-
-            <div className="text-3xl font-bold text-gray-800 mb-6">
-              {actions[currentActionIndex] === "Phrase"
-                ? "Playing music"
-                : `Countdown: ${countdown}`}
+        <div className="h-screen bg-gray-100 flex flex-col justify-between">
+          <div className="flex justify-between px-4 pt-4">
+            <div className="text-xl font-bold text-gray-800">
+              Run {currentPhraseIndex + 1}
+            </div>
+            <div className="text-xl font-bold text-gray-800">
+              {phases[currentPhaseIndex] == "Reference" ? "Training" : "Test"}
+            </div>
+          </div>
+          <div className="flex justify-center items-center flex-grow">
+            <div className="text-center">
+              <audio ref={audioRef} src={audioSrc} preload="auto" />
+              <div className="text-3xl font-bold text-gray-800 mb-6">
+                Please tap to the beats in the way you perceive them.
+              </div>
+              <div className="text-2xl text-gray-800 mb-6">
+                {actions[currentActionIndex] === "Phrase"
+                  ? "Start tapping"
+                  : `Countdown: ${countdown} seconds`}
+              </div>
             </div>
           </div>
         </div>
