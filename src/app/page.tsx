@@ -47,7 +47,7 @@ export default function Home() {
   const [countdown, setCountdown] = useState(5);
 
   // Define the order of phases and phrases
-  const actions = ["PromptCountdown", "Phrase", "Silence"];
+  const actions = ["PromptCountdown", "Phrase"];
   const phases = ["Reference", "Anchor", "MASS", "MT"];
 
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -111,7 +111,7 @@ export default function Home() {
 
     setIsRecording(false);
 
-    const timeToWait = actions[currentActionIndex] === "Silence" ? 3 : 5;
+    const timeToWait = 5;
 
     countdownInterval = setInterval(() => {
       setCountdown((prevCountdown) => {
@@ -138,7 +138,6 @@ export default function Home() {
       setAudioPlaying(false); // Stop audio playback
 
       advancePhase();
-      setCountdown(3); // Reset silence duration
     };
 
     if (audioRef.current) {
@@ -202,16 +201,45 @@ export default function Home() {
     case "start":
       return (
         <div className="flex justify-center items-center h-screen bg-gray-100">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-800 mb-6">
-              Welcome to the Tapping Interface
+          <div>
+            <h1 className="text-center text-3xl font-bold text-gray-800 mb-6">
+              Welcome to the Finger Tapping Test
             </h1>
-            <button
-              onClick={startTraining}
-              className="bg-gray-800 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline hover:bg-gray-700"
-            >
-              Start Tapping
-            </button>
+            <h2 className="text-xl text-gray-600 mb-4">
+              This test contains 10 runs and will take approximately 15 minutes.
+            </h2>
+            <h2 className="text-2xl font-semibold text-gray-700 mb-2">
+              Instructions
+            </h2>
+            <ul className="list-disc list-inside text-gray-600 text-lg mb-4">
+              <li>For each run, you will hear four music excerpts.</li>
+              <li>
+                Tap along to the beats by pressing the space bar on your
+                keyboard.
+              </li>
+              <li>
+                Please adjust the volume on your device using the sample music
+                excerpt before the test.
+              </li>
+            </ul>
+
+            <h2 className="text-center text-2xl font-semibold text-gray-700 mb-2">
+              Sample Music Excerpt
+            </h2>
+            <audio
+              src="phrases/Reference/03.wav"
+              preload="auto"
+              controls
+              className="mb-2 mx-auto"
+            />
+            <div className="flex">
+              <button
+                onClick={startTraining}
+                className="mx-auto bg-gray-800 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline hover:bg-gray-700"
+              >
+                Start Tapping
+              </button>
+            </div>
           </div>
         </div>
       );
@@ -223,7 +251,9 @@ export default function Home() {
               Run {currentPhraseIndex + 1}
             </div>
             <div className="text-xl font-bold text-gray-800">
-              {phases[currentPhaseIndex] == "Reference" ? "Training" : "Test"}
+              {phases[currentPhaseIndex] == "Reference"
+                ? "Practice Phase"
+                : "Test Phase"}
             </div>
           </div>
           <div className="flex justify-center items-center flex-grow">
