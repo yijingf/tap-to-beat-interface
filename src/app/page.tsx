@@ -78,6 +78,7 @@ export default function Home() {
 
     if (nextPhraseIndex >= phrases.length) {
       setStage("end");
+      exportKeyPresses();
     } else {
       setCurrentPhraseIndex(nextPhraseIndex);
     }
@@ -153,7 +154,7 @@ export default function Home() {
 
   useEffect(() => {
     const recordKeyPress = (event: KeyboardEvent) => {
-      if (event.repeat || !isRecording) return;
+      if (event.repeat || !isRecording || event.key !== " ") return;
 
       const currentTime = performance.now();
 
@@ -185,16 +186,22 @@ export default function Home() {
     advancePhase();
   };
 
-  const exportKeyPresses = () => {
+  const exportKeyPresses = async () => {
     const json = JSON.stringify(keyPresses);
-    const blob = new Blob([json], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "keyPresses.json";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    console.log(json);
+    const response = await fetch("/upload", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: json,
+    });
+
+    if (response.ok) {
+      console.log("JSON data uploaded successfully");
+    } else {
+      console.error("Failed to upload JSON data");
+    }
   };
 
   switch (stage) {
@@ -278,12 +285,6 @@ export default function Home() {
             <h1 className="text-3xl font-bold text-gray-800 mb-6">
               Thank you for participating!
             </h1>
-            <button
-              onClick={exportKeyPresses}
-              className="bg-gray-800 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline hover:bg-gray-700"
-            >
-              Export Key Presses
-            </button>
             <button
               onClick={() => window.location.reload()}
               className="bg-gray-800 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline hover:bg-gray-700 ml-4"
