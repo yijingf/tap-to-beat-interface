@@ -1,9 +1,9 @@
 "use client";
 
+import { clearPreviewData } from "next/dist/server/api-utils";
 import { useEffect, useRef, useState } from "react";
 
-// const nRun = 5;
-const nRun = 1;
+const nRun = 6;
 
 const fileNames = [
   "03.wav",
@@ -19,7 +19,6 @@ const fileNames = [
 ];
 
 const randomizedFileNames = fileNames.sort(() => Math.random() - 0.5).slice(0, nRun);
-console.log(randomizedFileNames);
 
 const shuffleMTandMASS = () =>
   Math.random() > 0.5 ? ["MT", "MASS"] : ["MASS", "MT"];
@@ -116,7 +115,7 @@ export default function Home() {
 
     setIsRecording(false);
 
-    const timeToWait = 5;
+    const timeToWait = 3;
 
     countdownInterval = setInterval(() => {
       setCountdown((prevCountdown) => {
@@ -160,21 +159,23 @@ export default function Home() {
     const recordKeyPress = (event: KeyboardEvent) => {
     //   if (event.repeat || !isRecording || event.key !== " ") return;
     if (event.repeat || !isRecording) return;
-
+        
       const currentTime = performance.now();
 
       const relativeTime = startTime ? currentTime - startTime : 0;
 
-      console.log(relativeTime);
-
+        
       setKeyPresses((prevDict) => {
         const key = phrases[currentPhraseIndex][currentPhaseIndex];
         const existingKeyPresses = prevDict[key] || [];
+
         return {
           ...prevDict,
           [key]: [...existingKeyPresses, relativeTime],
         };
+
       });
+
     };
 
     if (isRecording) {
@@ -194,8 +195,9 @@ export default function Home() {
   };
 
   const exportKeyPresses = async () => {
+
     const json = JSON.stringify(keyPresses);
-    console.log(json);
+
     const response = await fetch("/upload", {
       method: "POST",
       headers: {
@@ -217,7 +219,7 @@ export default function Home() {
         <div className="flex justify-center items-center h-screen bg-gray-100">
           <div>
             <h1 className="text-center text-3xl font-bold text-gray-800 mb-6">
-              Music AI Eval Session 2 - Tap to Beats
+              Music AI Eval Session 2 - Tap to the Beats
             </h1>
 
             <h2 className="text-xl text-gray-600 mb-4" style={{ width: '750px' }}>
@@ -229,7 +231,7 @@ export default function Home() {
             </h2>
             <ul className="list-disc list-inside text-gray-600 text-l mb-4" style={{ width: '750px' }}>
                 <li>Tap along to the beats of the music in the way you perceive them by pressing any letter key.</li>
-                <li>There will be 5 runs in this test. You will hear 3 music excerpts in each run. </li>
+                <li>There will be 6 runs in this test. You will hear 3 music excerpts in each run. </li>
             </ul>
 
             <h3 className="text-xl font-semibold text-gray-700 mb-2">
@@ -283,7 +285,7 @@ export default function Home() {
               <audio ref={audioRef} src={audioSrc} preload="auto" />
               <div className="text-3xl font-bold text-gray-800 mb-6">
                 {
-                "Tap to the beats"
+                `Excerpt-${currentPhaseIndex + 1}: Tap to the beats`
                 // phases[currentPhaseIndex] == "Reference"
                 // ? "Practice tapping to the beats."
                 // : "Tap to the beats"
@@ -292,7 +294,7 @@ export default function Home() {
               <div className="text-2xl text-gray-800 mb-6">
                 {actions[currentActionIndex] === "Phrase"
                   ? "Start tapping"
-                  : `Excerpt-${currentPhaseIndex + 1} in ${countdown} seconds`}
+                  : `Next excerpt in ${countdown} seconds`}
               </div>
             </div>
           </div>
