@@ -303,7 +303,7 @@ export default function Home() {
         <div className="flex justify-center items-center h-screen bg-gray-100">
           <div className="text-center">
             <h1 className="text-3xl font-bold text-gray-800 mb-6">
-              Thank you for participating!
+              Thank you for your participation!
             </h1>
             <button
               onClick={() => window.location.reload()}
