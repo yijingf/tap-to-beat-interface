@@ -239,7 +239,8 @@ export default function Home() {
               Note
             </h3>
             <ul className="text-m list-disc list-inside text-gray-600 mb-4" style={{ width: '750px' }}>
-                Please adjust the volume of your device using the sample music excerpt below before the listening test, and do not adjust the volume during the test.
+                <li>Please complete this test on your computer.</li>
+                <li>Please adjust the volume of your device using the sample music excerpt below before the listening test, and do not adjust the volume during the test.</li>
             </ul>
 
             <h2 className="text-center text-lg font-semibold text-gray-700 mb-2">
