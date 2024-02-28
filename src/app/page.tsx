@@ -156,7 +156,8 @@ export default function Home() {
 
   useEffect(() => {
     const recordKeyPress = (event: KeyboardEvent) => {
-      if (event.repeat || !isRecording || event.key !== " ") return;
+    //   if (event.repeat || !isRecording || event.key !== " ") return;
+    if (event.repeat || !isRecording) return;
 
       const currentTime = performance.now();
 
