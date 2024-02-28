@@ -158,12 +158,13 @@ export default function Home() {
   useEffect(() => {
     const recordKeyPress = (event: KeyboardEvent) => {
     //   if (event.repeat || !isRecording || event.key !== " ") return;
-    if (event.repeat || !isRecording) return;
-        
+    if (event.repeat || !isRecording || event.key < 'A' || event.key > 'z') return;
+    // if (event.repeat || !isRecording) return;
       const currentTime = performance.now();
 
       const relativeTime = startTime ? currentTime - startTime : 0;
 
+      console.log(relativeTime);
         
       setKeyPresses((prevDict) => {
         const key = phrases[currentPhraseIndex][currentPhaseIndex];
@@ -230,17 +231,15 @@ export default function Home() {
               Instructions
             </h2>
             <ul className="list-disc list-inside text-gray-600 text-l mb-4" style={{ width: '750px' }}>
-                <li>Tap along to the beats of the music in the way you perceive them by pressing any letter key.</li>
-                <li>There will be 6 runs in this test. You will hear 3 music excerpts in each run. </li>
+                <li>Tap to the beats of the music on your keyboard by pressing any letter (a to z) on the keyboard.</li>
+                <li>There will be 6 runs in this test. For each run, you will hear 3 music excerpts. </li>
             </ul>
 
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">
+            <h3 className="text-l font-semibold text-gray-700 mb-2">
               Note
             </h3>
-            <ul className="list-disc list-inside text-gray-600 mb-4" style={{ width: '750px' }}>
-                <li>Please adjust the volume of your device using the sample music excerpt below before the test.
-              </li>
-              <li>Please do not adjust the volume during the listening test.</li>
+            <ul className="text-m list-disc list-inside text-gray-600 mb-4" style={{ width: '750px' }}>
+                Please adjust the volume of your device using the sample music excerpt below before the listening test, and do not adjust the volume during the test.
             </ul>
 
             <h2 className="text-center text-lg font-semibold text-gray-700 mb-2">
@@ -283,17 +282,16 @@ export default function Home() {
           <div className="flex justify-center items-center flex-grow">
             <div className="text-center">
               <audio ref={audioRef} src={audioSrc} preload="auto" />
-              <div className="text-3xl font-bold text-gray-800 mb-6">
-                {
-                `Excerpt-${currentPhaseIndex + 1}: Tap to the beats`
-                // phases[currentPhaseIndex] == "Reference"
-                // ? "Practice tapping to the beats."
-                // : "Tap to the beats"
-                }
-              </div>
+              <div  className="text-3xl font-bold text-gray-800 mb-6">
+                {`Excerpt-${currentPhaseIndex + 1}`}
+            </div>
+                {/* phases[currentPhaseIndex] == "Reference" */}
+                {/* // ? "Practice tapping to the beats." */}
+                {/* // : "Tap to the beats"} */}
+                
               <div className="text-2xl text-gray-800 mb-6">
                 {actions[currentActionIndex] === "Phrase"
-                  ? "Start tapping"
+                  ? "Tap to the beats by pressing any key from a to z"
                   : `Next excerpt in ${countdown} seconds`}
               </div>
             </div>
