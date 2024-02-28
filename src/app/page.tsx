@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 
-const nRun = 5;
+// const nRun = 5;
+const nRun = 1;
 
 const fileNames = [
   "03.wav",
@@ -17,7 +18,8 @@ const fileNames = [
   "20.wav",
 ];
 
-const randomizedFileNames = fileNames.sort(() => Math.random() - 0.5).slice(nRun);
+const randomizedFileNames = fileNames.sort(() => Math.random() - 0.5).slice(0, nRun);
+console.log(randomizedFileNames);
 
 const shuffleMTandMASS = () =>
   Math.random() > 0.5 ? ["MT", "MASS"] : ["MASS", "MT"];
@@ -163,6 +165,8 @@ export default function Home() {
 
       const relativeTime = startTime ? currentTime - startTime : 0;
 
+      console.log(relativeTime);
+
       setKeyPresses((prevDict) => {
         const key = phrases[currentPhraseIndex][currentPhaseIndex];
         const existingKeyPresses = prevDict[key] || [];
@@ -213,19 +217,19 @@ export default function Home() {
         <div className="flex justify-center items-center h-screen bg-gray-100">
           <div>
             <h1 className="text-center text-3xl font-bold text-gray-800 mb-6">
-              Music AI Eval
+              Music AI Eval Session 2 - Tap to Beats
             </h1>
 
             <h2 className="text-xl text-gray-600 mb-4" style={{ width: '750px' }}>
-            Thank your interest. This listening test takes approximately 5 minutes.
+            Thank you for your interest. This listening test takes approximately 5 minutes.
             </h2>
 
             <h2 className="text-2xl font-semibold text-gray-700 mb-2">
               Instructions
             </h2>
             <ul className="list-disc list-inside text-gray-600 text-l mb-4" style={{ width: '750px' }}>
-                <li>There will be 5 runs in this test. You will hear 3 music excerpts in each run. </li>
                 <li>Tap along to the beats of the music in the way you perceive them by pressing any letter key.</li>
+                <li>There will be 5 runs in this test. You will hear 3 music excerpts in each run. </li>
             </ul>
 
             <h3 className="text-xl font-semibold text-gray-700 mb-2">
