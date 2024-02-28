@@ -291,7 +291,7 @@ export default function Home() {
                 
               <div className="text-2xl text-gray-800 mb-6">
                 {actions[currentActionIndex] === "Phrase"
-                  ? "Tap to the beats by pressing any key from a to z"
+                  ? "Tap to the beats on any key from a to z"
                   : `Next excerpt in ${countdown} seconds`}
               </div>
             </div>
@@ -302,8 +302,11 @@ export default function Home() {
       return (
         <div className="flex justify-center items-center h-screen bg-gray-100">
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-800 mb-6">
-              Thank you for your participation!
+            <h1 className="text-xl font-bold text-gray-800 mb-6">
+            We thank you for your time spent taking this survey. 
+            </h1>
+            <h1 className="text-xl font-bold text-gray-800 mb-6">
+            Your response has been recorded.
             </h1>
             <button
               onClick={() => window.location.reload()}
