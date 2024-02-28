@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 
+const nRun = 5;
+
 const fileNames = [
   "03.wav",
   "04.wav",
@@ -12,11 +14,10 @@ const fileNames = [
   "10.wav",
   "11.wav",
   "12.wav",
-  "16.wav",
   "20.wav",
 ];
 
-const randomizedFileNames = fileNames.sort(() => Math.random() - 0.5);
+const randomizedFileNames = fileNames.sort(() => Math.random() - 0.5).slice(nRun);
 
 const shuffleMTandMASS = () =>
   Math.random() > 0.5 ? ["MT", "MASS"] : ["MASS", "MT"];
@@ -24,7 +25,7 @@ const shuffleMTandMASS = () =>
 const phrases = randomizedFileNames.map((filename) => {
   const [first, second] = shuffleMTandMASS(); // Get a randomized order for 'MT' and 'MASS'
   return [
-    `phrases/Reference/${filename}`,
+    // `phrases/Reference/${filename}`,
     `phrases/Anchor/${filename}`,
     `phrases/${first}/${filename}`,
     `phrases/${second}/${filename}`,
@@ -48,7 +49,8 @@ export default function Home() {
 
   // Define the order of phases and phrases
   const actions = ["PromptCountdown", "Phrase"];
-  const phases = ["Reference", "Anchor", "MASS", "MT"];
+  const phases = ["Anchor", "MASS", "MT"];
+//   const phases = ["Reference", "Anchor", "MASS", "MT"];
 
   const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -210,31 +212,35 @@ export default function Home() {
         <div className="flex justify-center items-center h-screen bg-gray-100">
           <div>
             <h1 className="text-center text-3xl font-bold text-gray-800 mb-6">
-              Welcome to the Finger Tapping Test
+              Music AI Eval
             </h1>
-            <h2 className="text-xl text-gray-600 mb-4">
-              This test contains 10 runs and will take approximately 15 minutes.
+
+            <h2 className="text-xl text-gray-600 mb-4" style={{ width: '750px' }}>
+            Thank your interest. This listening test takes approximately 5 minutes.
             </h2>
+
             <h2 className="text-2xl font-semibold text-gray-700 mb-2">
               Instructions
             </h2>
-            <ul className="list-disc list-inside text-gray-600 text-lg mb-4">
-              <li>For each run, you will hear four music excerpts.</li>
-              <li>
-                Tap along to the beats by pressing the space bar on your
-                keyboard.
-              </li>
-              <li>
-                Please adjust the volume on your device using the sample music
-                excerpt before the test.
-              </li>
+            <ul className="list-disc list-inside text-gray-600 text-l mb-4" style={{ width: '750px' }}>
+                <li>There will be 5 runs in this test. You will hear 3 music excerpts in each run. </li>
+                <li>Tap along to the beats of the music in the way you perceive them by pressing any letter key.</li>
             </ul>
 
-            <h2 className="text-center text-2xl font-semibold text-gray-700 mb-2">
+            <h3 className="text-xl font-semibold text-gray-700 mb-2">
+              Note
+            </h3>
+            <ul className="list-disc list-inside text-gray-600 mb-4" style={{ width: '750px' }}>
+                <li>Please adjust the volume of your device using the sample music excerpt below before the test.
+              </li>
+              <li>Please do not adjust the volume during the listening test.</li>
+            </ul>
+
+            <h2 className="text-center text-lg font-semibold text-gray-700 mb-2">
               Sample Music Excerpt
             </h2>
             <audio
-              src="phrases/Reference/03.wav"
+              src="phrases/Sample/16.wav"
               preload="auto"
               controls
               className="mb-2 mx-auto"
@@ -244,7 +250,7 @@ export default function Home() {
                 onClick={startTraining}
                 className="mx-auto bg-gray-800 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline hover:bg-gray-700"
               >
-                Start Tapping
+                Start the Test
               </button>
             </div>
           </div>
@@ -257,22 +263,31 @@ export default function Home() {
             <div className="text-xl font-bold text-gray-800">
               Run {currentPhraseIndex + 1}
             </div>
-            <div className="text-xl font-bold text-gray-800">
-              {phases[currentPhaseIndex] == "Reference"
+
+            {/* <div className="text-xl font-bold text-gray-800">
+              {
+              phases[currentPhaseIndex] == "Reference"
                 ? "Practice Phase"
-                : "Test Phase"}
-            </div>
+                : `Excerpt-${currentPhaseIndex + 1}`
+                }
+            </div> */}
+            
           </div>
           <div className="flex justify-center items-center flex-grow">
             <div className="text-center">
               <audio ref={audioRef} src={audioSrc} preload="auto" />
               <div className="text-3xl font-bold text-gray-800 mb-6">
-                Please tap to the beats in the way you perceive them.
+                {
+                "Tap to the beats"
+                // phases[currentPhaseIndex] == "Reference"
+                // ? "Practice tapping to the beats."
+                // : "Tap to the beats"
+                }
               </div>
               <div className="text-2xl text-gray-800 mb-6">
                 {actions[currentActionIndex] === "Phrase"
                   ? "Start tapping"
-                  : `Countdown: ${countdown} seconds`}
+                  : `Excerpt-${currentPhaseIndex + 1} in ${countdown} seconds`}
               </div>
             </div>
           </div>
