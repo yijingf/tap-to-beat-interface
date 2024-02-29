@@ -3,7 +3,7 @@
 import { clearPreviewData } from "next/dist/server/api-utils";
 import { useEffect, useRef, useState } from "react";
 
-const nRun = 1;
+const nRun = 6;
 
 const fileNames = [
   "03.wav",
