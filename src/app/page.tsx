@@ -3,7 +3,7 @@
 import { clearPreviewData } from "next/dist/server/api-utils";
 import { useEffect, useRef, useState } from "react";
 
-const nRun = 6;
+const nRun = 1;
 
 const fileNames = [
   "03.wav",
@@ -164,7 +164,6 @@ export default function Home() {
 
       const relativeTime = startTime ? currentTime - startTime : 0;
 
-      console.log(relativeTime);
         
       setKeyPresses((prevDict) => {
         const key = phrases[currentPhraseIndex][currentPhaseIndex];
