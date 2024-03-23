@@ -240,6 +240,7 @@ export default function Home() {
             </h3>
             <ul className="text-m list-disc list-inside text-gray-600 mb-4" style={{ width: '750px' }}>
                 <li>Please complete this test on your computer.</li>
+                <li>Tap to the beats they way you normally tap your foot while listening to music.</li>
                 <li>Please adjust the volume of your device using the sample music excerpt below before the listening test, and do not adjust the volume during the test.</li>
             </ul>
 
