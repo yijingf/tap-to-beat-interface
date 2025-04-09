@@ -3,19 +3,19 @@
 import { clearPreviewData } from "next/dist/server/api-utils";
 import { useEffect, useRef, useState } from "react";
 
-const nRun = 6;
+const nRun = 2;
 
 const fileNames = [
   "03.wav",
   "04.wav",
-  "05.wav",
-  "06.wav",
-  "07.wav",
-  "08.wav",
-  "10.wav",
-  "11.wav",
-  "12.wav",
-  "20.wav",
+//   "05.wav",
+//   "06.wav",
+//   "07.wav",
+//   "08.wav",
+//   "10.wav",
+//   "11.wav",
+//   "12.wav",
+//   "20.wav",
 ];
 
 const randomizedFileNames = fileNames.sort(() => Math.random() - 0.5).slice(0, nRun);
